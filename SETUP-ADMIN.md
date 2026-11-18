@@ -8,6 +8,7 @@ Di komputer yang sudah memiliki Node.js/npm:
 
 ```powershell
 npm install
+npx wrangler login
 npm run db:create
 ```
 
@@ -22,7 +23,7 @@ npm run deploy:api
 
 Masukkan username dan password admin saat diminta oleh perintah `secret put`. Gunakan password unik yang kuat. Jangan commit `.dev.vars` atau membagikan secret.
 
-## 2. Hubungkan website ke API
+## 2. Hubungkan website ke API dan checkout Scalev
 
 Setelah deploy, Wrangler menampilkan URL Worker, misalnya `https://my-wish-project-api.<akun>.workers.dev`. Isi URL tersebut sebagai `apiBaseUrl` di `config.js`:
 
@@ -32,7 +33,13 @@ window.APP_CONFIG = {
 };
 ```
 
-Unggah perubahan website (`config.js`, `index.html`, `script.js`, `admin.html`, `admin.css`, dan `admin.js`) ke branch `main` di repository GitHub. GitHub Pages akan menerbitkan versi terbarunya.
+Website menggunakan checkout produk Scalev berikut:
+
+```text
+https://my-wish-project.myscalev.com/p/ebook-wish-come-true
+```
+
+Pastikan harga dan metode pembayaran produk di Scalev sesuai. Form website mencatat order lokal, lalu mengarahkan pelanggan ke halaman checkout Scalev. Perubahan file frontend dan Worker di branch `main` akan diterbitkan melalui GitHub Pages dan Cloudflare Workers.
 
 ## 3. Buka dashboard
 
@@ -44,4 +51,4 @@ Form website menyimpan order baru dengan status `pending`. Admin dapat melihat d
 
 - D1 menyimpan nama, nomor WhatsApp, email, metode pembayaran, jumlah, status, dan waktu order.
 - API hanya menerima permintaan browser dari `https://tampanwoh.github.io`.
-- `CHECKOUT_URL` di `script.js` tetap harus diisi agar pelanggan diarahkan ke penyedia pembayaran. Menandai order `paid` di dashboard dilakukan manual; verifikasi pembayaran ke penyedia tetap diperlukan.
+- Checkout Scalev menangani pilihan metode pembayaran dan proses pembayaran. Status order lokal di dashboard tetap perlu diperbarui manual setelah pembayaran diverifikasi di Scalev.
