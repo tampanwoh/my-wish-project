@@ -100,7 +100,7 @@
       contact.append(phone, email);
       row.appendChild(contact);
 
-      var methodNames = {qris:'QRIS', ewallet:'E-Wallet / VA'};
+      var methodNames = {qris:'QRIS', ewallet:'E-Wallet / VA', scalev:'Scalev'};
       row.appendChild(textCell(methodNames[order.payment_method] || order.payment_method));
       row.appendChild(textCell('Rp' + Number(order.amount).toLocaleString('id-ID')));
 
