@@ -2,6 +2,7 @@
 var CHECKOUT_URL = "";                         // contoh: https://lynk.id/mywishproject/xxxx
 var WA_NUMBER    = "";                         // contoh: 6281234567890 (tanpa +)
 var LAUNCH_END   = "2026-11-30T23:59:59+07:00"; // akhir harga peluncuran (harus benar-benar Anda terapkan)
+var API_BASE_URL = window.APP_CONFIG ? window.APP_CONFIG.apiBaseUrl : "";
 /* ========================= */
 
 /* Rekening untuk transfer manual. Kosongkan array ([]) jika tidak dipakai. */
@@ -45,8 +46,18 @@ document.querySelectorAll('[data-checkout]').forEach(function(a){ a.href = "#pes
   function setErr(id,bad){ document.getElementById(id).classList.toggle('err',bad); return !bad; }
   function normWA(v){ v = v.replace(/[^0-9]/g,''); if(v.indexOf('0')===0) v='62'+v.slice(1); else if(v.indexOf('8')===0) v='62'+v; return v; }
   function msg(cls,t){ status.className='status show '+cls; status.textContent=t; }
+  async function saveOrder(order){
+    var response = await fetch(API_BASE_URL.replace(/\/$/,'') + '/api/orders', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(order)
+    });
+    var data = await response.json();
+    if(!response.ok) throw new Error(data.error || 'Order gagal disimpan.');
+    return data;
+  }
 
-  document.getElementById('orderForm').addEventListener('submit', function(e){
+  document.getElementById('orderForm').addEventListener('submit', async function(e){
     e.preventDefault(); hide();
     var name = document.getElementById('name').value.trim();
     var wa = normWA(document.getElementById('wa').value);
@@ -57,21 +68,41 @@ document.querySelectorAll('[data-checkout]').forEach(function(a){ a.href = "#pes
     ok = setErr('f-email', !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) && ok;
     if(!ok) return;
 
-    if(sel.gateway){
-      if(!CHECKOUT_URL){ msg('warn','Link pembayaran belum dipasang oleh penjual (isi CHECKOUT_URL di file).'); return; }
-      var u = CHECKOUT_URL + (CHECKOUT_URL.indexOf('?')>-1?'&':'?') + new URLSearchParams({name:name, phone:wa, email:email, method:sel.id}).toString();
-      msg('ok','Mengarahkan ke halaman pembayaran…');
-      var a = document.createElement('a'); a.href = u; a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
-    } else {
-      var b = sel.bank;
-      var text = 'Halo admin My Wish Project, saya ' + name + ' (' + wa + ', ' + email + ') sudah transfer Rp49.999 ke ' + b.bank + ' untuk ebook Wish Come True. Berikut bukti transfernya.';
-      var waLink = WA_NUMBER ? 'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(text) : '';
-      bankbox.innerHTML = '<b>Transfer Rp49.999 ke:</b><br>' + b.bank + '<br><span class="no" id="bno">' + b.no + '</span><button type="button" class="cp" id="cpbtn">Salin</button><br>a.n. ' + b.name +
-        '<br><br>Setelah transfer, kirim bukti ke admin supaya akses ebook diproses.' +
-        (waLink ? '<br><br><a class="btn block confirm-btn" target="_blank" rel="noopener" href="' + waLink + '">Konfirmasi via WhatsApp</a>' : '<br><br><i>Nomor WhatsApp admin belum diisi.</i>');
-      bankbox.className = 'bankbox show';
-      var c = document.getElementById('cpbtn');
-      c.onclick = function(){ try{ navigator.clipboard.writeText(b.no); c.textContent='Tersalin'; }catch(_){ c.textContent='Salin manual'; } };
+    if(!API_BASE_URL){ msg('warn','Pemesanan belum aktif: backend order belum dikonfigurasi.'); return; }
+    btn.disabled = true;
+    try {
+      var order = await saveOrder({name:name, phone:wa, email:email, payment_method:sel.id});
+      if(sel.gateway){
+        if(!CHECKOUT_URL){
+          msg('ok','Order #' + order.id + ' tercatat dengan status menunggu pembayaran. Link pembayaran belum dipasang.');
+          return;
+        }
+        var u = CHECKOUT_URL + (CHECKOUT_URL.indexOf('?')>-1?'&':'?') +
+          new URLSearchParams({name:name, phone:wa, email:email, method:sel.id, order_id:order.id}).toString();
+        msg('ok','Order tercatat. Mengarahkan ke halaman pembayaran…');
+        var a = document.createElement('a'); a.href = u; a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
+      } else {
+        var b = sel.bank;
+        var text = 'Halo admin My Wish Project, saya ' + name + ' (' + wa + ', ' + email + ') sudah transfer Rp49.999 ke ' + b.bank + ' untuk order ' + order.id + ' ebook Wish Come True. Berikut bukti transfernya.';
+        var waLink = WA_NUMBER ? 'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(text) : '';
+        bankbox.innerHTML = '<b>Order #' + order.id + '</b><br><b>Transfer Rp49.999 ke:</b><br>' + b.bank + '<br><span class="no" id="bno">' + b.no + '</span><button type="button" class="cp" id="cpbtn">Salin</button><br>a.n. ' + b.name +
+          '<br><br>Setelah transfer, kirim bukti ke admin supaya akses ebook diproses.' +
+          (waLink ? '<br><br><a class="btn block confirm-btn" target="_blank" rel="noopener" href="' + waLink + '">Konfirmasi via WhatsApp</a>' : '<br><br><i>Nomor WhatsApp admin belum diisi.</i>');
+        bankbox.className = 'bankbox show';
+        var c = document.getElementById('cpbtn');
+        c.onclick = function(){
+          try {
+            navigator.clipboard.writeText(b.no).then(function(){ c.textContent='Tersalin'; }).catch(function(){ c.textContent='Salin manual'; });
+          } catch(error) {
+            c.textContent='Salin manual';
+          }
+        };
+      }
+    } catch(error) {
+      console.error('Order gagal disimpan:', error);
+      msg('warn',error.message || 'Order gagal disimpan. Coba lagi.');
+    } finally {
+      btn.disabled = false;
     }
   });
   render();

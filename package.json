@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "scripts": {
+    "db:create": "wrangler d1 create wish-orders",
+    "db:migrate": "wrangler d1 execute wish-orders --remote --file=schema.sql",
+    "deploy:api": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

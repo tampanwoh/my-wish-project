@@ -1,0 +1,11 @@
+name = "my-wish-project-api"
+main = "api-worker.js"
+compatibility_date = "2026-11-18"
+
+[vars]
+SITE_ORIGIN = "https://tampanwoh.github.io"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "wish-orders"
+database_id = "REPLACE_WITH_CLOUDFLARE_D1_DATABASE_ID"

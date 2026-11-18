@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin — My Wish Project</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <a class="brand" href="./">My Wish <span>ADMIN</span></a>
+      <a class="back-link" href="./">Kembali ke website</a>
+    </header>
+
+    <section class="login-card" id="loginPanel">
+      <p class="eyebrow">AREA ADMIN</p>
+      <h1>Masuk ke dashboard</h1>
+      <p class="muted">Gunakan username dan password admin.</p>
+      <form id="loginForm">
+        <label for="username">Username</label>
+        <input id="username" name="username" autocomplete="username" required>
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+        <button class="primary" type="submit" id="loginButton">Masuk</button>
+        <p class="message" id="loginMessage" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="dashboard hidden" id="dashboardPanel">
+      <div class="dashboard-heading">
+        <div>
+          <p class="eyebrow">MY WISH PROJECT</p>
+          <h1>Order masuk</h1>
+          <p class="muted">Kelola pesanan dan perbarui status pembayarannya.</p>
+        </div>
+        <div class="heading-actions">
+          <button class="secondary" id="refreshButton" type="button">Muat ulang</button>
+          <button class="secondary" id="logoutButton" type="button">Keluar</button>
+        </div>
+      </div>
+
+      <p class="message" id="dashboardMessage" role="status" aria-live="polite"></p>
+
+      <div class="stats">
+        <article class="stat"><span>Total order</span><strong id="totalCount">0</strong></article>
+        <article class="stat"><span>Menunggu pembayaran</span><strong id="pendingCount">0</strong></article>
+        <article class="stat"><span>Lunas</span><strong id="paidCount">0</strong></article>
+      </div>
+
+      <section class="orders-card">
+        <div class="list-heading">
+          <h2>Daftar order</h2>
+          <input id="searchInput" type="search" placeholder="Cari nama, email, atau nomor">
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Waktu</th>
+                <th>Pelanggan</th>
+                <th>Kontak</th>
+                <th>Pembayaran</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="ordersBody">
+              <tr><td class="empty" colspan="7">Belum ada order.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+  </main>
+  <script src="config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
