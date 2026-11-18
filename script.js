@@ -1,5 +1,5 @@
 /* ===== ISI NILAI INI ===== */
-var CHECKOUT_URL = "";                         // contoh: https://lynk.id/mywishproject/xxxx
+var CHECKOUT_URL = "https://my-wish-project.myscalev.com/p/ebook-wish-come-true";
 var WA_NUMBER    = "";                         // contoh: 6281234567890 (tanpa +)
 var LAUNCH_END   = "2026-11-30T23:59:59+07:00"; // akhir harga peluncuran (harus benar-benar Anda terapkan)
 var API_BASE_URL = window.APP_CONFIG ? window.APP_CONFIG.apiBaseUrl : "";
@@ -16,8 +16,7 @@ document.querySelectorAll('[data-checkout]').forEach(function(a){ a.href = "#pes
 /* ---------- Form pemesanan ---------- */
 (function(){
   var METHODS = [
-    {id:'qris', title:'QRIS', icon:'▦', desc:'Scan pakai e-wallet / m-banking apa saja', fast:true, gateway:true},
-    {id:'ewallet', title:'E-Wallet & Virtual Account', icon:'👛', desc:'GoPay, OVO, DANA, ShopeePay, VA bank, dll.', gateway:true}
+    {id:'scalev', title:'Pembayaran via Scalev', icon:'💳', desc:'Pilih QRIS, e-wallet, transfer, atau metode lain saat checkout', gateway:true}
   ];
   BANKS.forEach(function(b,i){ METHODS.push({id:'bank'+i, title:b.bank, icon:b.icon||'🏦', desc:'Transfer manual a.n. '+b.name, bank:b}); });
 
@@ -28,7 +27,7 @@ document.querySelectorAll('[data-checkout]').forEach(function(a){ a.href = "#pes
   var status = document.getElementById('status');
   var bankbox = document.getElementById('bankbox');
 
-  function label(m){ return m.bank ? 'Lihat Rekening & Konfirmasi →' : 'Bayar dengan ' + (m.id==='qris'?'QRIS':'E-Wallet / VA') + ' →'; }
+  function label(m){ return m.bank ? 'Lihat Rekening & Konfirmasi →' : 'Lanjut ke pembayaran Scalev →'; }
   function render(){
     box.innerHTML = '';
     METHODS.forEach(function(m){
@@ -40,14 +39,14 @@ document.querySelectorAll('[data-checkout]').forEach(function(a){ a.href = "#pes
       box.appendChild(l);
     });
     btn.textContent = label(sel);
-    sumM.textContent = sel.bank ? 'Transfer ' + sel.title : sel.title;
+    sumM.textContent = sel.bank ? 'Transfer ' + sel.title : 'Scalev';
   }
   function hide(){ status.className='status'; bankbox.className='bankbox'; }
   function setErr(id,bad){ document.getElementById(id).classList.toggle('err',bad); return !bad; }
   function normWA(v){ v = v.replace(/[^0-9]/g,''); if(v.indexOf('0')===0) v='62'+v.slice(1); else if(v.indexOf('8')===0) v='62'+v; return v; }
   function msg(cls,t){ status.className='status show '+cls; status.textContent=t; }
   async function saveOrder(order){
-    var response = await fetch(API_BASE_URL.replace(/\/$/,'') + '/api/orders', {
+    var response = await fetch(API_BASE_URL.replace(/\/$/, '') + '/api/orders', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify(order)
@@ -77,10 +76,8 @@ document.querySelectorAll('[data-checkout]').forEach(function(a){ a.href = "#pes
           msg('ok','Order #' + order.id + ' tercatat dengan status menunggu pembayaran. Link pembayaran belum dipasang.');
           return;
         }
-        var u = CHECKOUT_URL + (CHECKOUT_URL.indexOf('?')>-1?'&':'?') +
-          new URLSearchParams({name:name, phone:wa, email:email, method:sel.id, order_id:order.id}).toString();
         msg('ok','Order tercatat. Mengarahkan ke halaman pembayaran…');
-        var a = document.createElement('a'); a.href = u; a.target = '_blank'; a.rel = 'noopener'; document.body.appendChild(a); a.click(); a.remove();
+        window.location.assign(CHECKOUT_URL);
       } else {
         var b = sel.bank;
         var text = 'Halo admin My Wish Project, saya ' + name + ' (' + wa + ', ' + email + ') sudah transfer Rp49.999 ke ' + b.bank + ' untuk order ' + order.id + ' ebook Wish Come True. Berikut bukti transfernya.';
