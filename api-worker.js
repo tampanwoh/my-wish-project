@@ -87,7 +87,7 @@ function validOrder(body) {
   if (name.length < 2 || name.length > 120) return null;
   if (!/^62[0-9]{8,13}$/.test(phone)) return null;
   if (email.length > 254 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return null;
-  if (!/^(qris|ewallet|bank[0-9]{1,2})$/.test(paymentMethod)) return null;
+  if (!/^(qris|ewallet|scalev|bank[0-9]{1,2})$/.test(paymentMethod)) return null;
   return { name: name, phone: phone, email: email, paymentMethod: paymentMethod };
 }
 
