@@ -1,3 +1,3 @@
 window.APP_CONFIG = {
-  apiBaseUrl: ""
+  apiBaseUrl: "https://my-wish-project-api.tampan-wahyu23.workers.dev"
 };
