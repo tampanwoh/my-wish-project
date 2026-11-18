@@ -8,4 +8,4 @@ SITE_ORIGIN = "https://tampanwoh.github.io"
 [[d1_databases]]
 binding = "DB"
 database_name = "wish-orders"
-database_id = "REPLACE_WITH_CLOUDFLARE_D1_DATABASE_ID"
+database_id = "bdfdfc43-a9bc-444a-a644-591089f40fdf"
